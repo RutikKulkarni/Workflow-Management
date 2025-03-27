@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image"; // Make sure this is uncommented
+import Image from "next/image";
 import { FaGoogle, FaFacebook, FaApple } from "react-icons/fa";
-import bgImage from "@/assets/background.png"; // Make sure this path matches your actual image location
+import bgImage from "@/assets/background.png";
+import { login, getCurrentUser } from "@/lib/auth";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -13,13 +14,22 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
+  useEffect(() => {
+    const currentUser = getCurrentUser();
+    if (currentUser) {
+      router.push("/");
+    }
+  }, [router]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
+
     try {
-      console.log("Logging in:", { email, password, rememberMe });
+      login(email, password, rememberMe);
       router.push("/");
-    } catch {
-      setError("Invalid email or password.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Login failed");
     }
   };
 

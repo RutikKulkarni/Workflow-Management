@@ -1,40 +1,14 @@
-// "use client";
-
-// import { useState, useEffect } from "react";
-// import { useRouter } from "next/navigation";
-// import { getCurrentUser } from "@/lib/auth";
-
-// export default function HomePage() {
-//   const [user, setUser] = useState<{ email: string } | null>(null);
-//   const router = useRouter();
-
-//   useEffect(() => {
-//     const currentUser = getCurrentUser();
-//     setUser(currentUser);
-//     if (!currentUser) {
-//       router.push("/auth");
-//     }
-//   }, [router]);
-
-//   if (!user) {
-//     return null;
-//   }
-
-//   return (
-//     <div className="flex items-center justify-center min-h-screen">
-//       <h1 className="text-3xl font-bold">Welcome, {user.email}!</h1>
-//     </div>
-//   );
-// }
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import axios from "axios";
 import { BsPinAngle } from "react-icons/bs";
 import { IoArrowDownSharp } from "react-icons/io5";
 import { RxDotsVertical } from "react-icons/rx";
 import { RiSearchLine } from "react-icons/ri";
 import { HiMenuAlt2 } from "react-icons/hi";
+import { getCurrentUser, logout } from "@/lib/auth";
 
 interface Workflow {
   id: string;
@@ -50,9 +24,19 @@ const HomePage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [user, setUser] = useState<{ email: string } | null>(null);
+  const router = useRouter();
   const itemsPerPage = 10;
 
   useEffect(() => {
+    const currentUser = getCurrentUser();
+    setUser(currentUser);
+
+    if (!currentUser) {
+      router.push("/auth");
+      return;
+    }
+
     const fetchWorkflows = async () => {
       setIsLoading(true);
       try {
@@ -68,9 +52,8 @@ const HomePage = () => {
       }
     };
     fetchWorkflows();
-  }, []);
+  }, [router]);
 
-  // Handle search functionality
   useEffect(() => {
     const filtered = workflows.filter(
       (workflow) =>
@@ -78,7 +61,7 @@ const HomePage = () => {
         workflow.id.toLowerCase().includes(searchQuery.toLowerCase())
     );
     setFilteredWorkflows(filtered);
-    setCurrentPage(1); // Reset to first page when searching
+    setCurrentPage(1);
   }, [searchQuery, workflows]);
 
   const paginatedData = filteredWorkflows.slice(
@@ -86,9 +69,18 @@ const HomePage = () => {
     currentPage * itemsPerPage
   );
 
+  const handleLogout = () => {
+    logout();
+    router.push("/auth");
+  };
+
+  if (!user) {
+    return null;
+  }
+
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
-      <div className="flex items-center mb-6">
+      {/* <div className="flex items-center mb-6">
         <div className="flex items-center">
           <HiMenuAlt2 className="w-6 h-6 mr-4" />
           <h1 className="text-3xl font-semibold">Workflow Builder</h1>
@@ -96,6 +88,24 @@ const HomePage = () => {
         <button className="bg-black hover:bg-black-700 text-white px-5 py-2 rounded-lg shadow ml-auto">
           + Create New Process
         </button>
+      </div> */}
+      <div className="flex items-center mb-6">
+        <div className="flex items-center">
+          <HiMenuAlt2 className="w-6 h-6 mr-4" />
+          <h1 className="text-3xl font-semibold">Workflow Builder</h1>
+        </div>
+        <div className="ml-auto flex items-center gap-4">
+          <span className="text-gray-700">Welcome, {user.email}</span>
+          <button
+            onClick={handleLogout}
+            className=" px-4 py-2 rounded-lg shadow cursor-pointer"
+          >
+            Logout
+          </button>
+          <button className="bg-black hover:bg-gray-800 text-white px-5 py-2 rounded-lg shadow cursor-pointer">
+            + Create New Process
+          </button>
+        </div>
       </div>
 
       <div className="relative w-[340px] h-[32px] pb-[2px] mb-6">
