@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
+import Image from "next/image"; // Make sure this is uncommented
 import { FaGoogle, FaFacebook, FaApple } from "react-icons/fa";
-import bgImage from "@/assets/background.png"; // Ensure this path is correct
+import bgImage from "@/assets/background.png"; // Make sure this path matches your actual image location
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -24,7 +24,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="relative flex h-screen py-0">
+    <div className="relative flex h-screen">
       <div className="absolute inset-0 z-0">
         <Image
           src={bgImage}
@@ -33,7 +33,7 @@ export default function LoginPage() {
           objectFit="cover"
           quality={100}
         />
-        <div className="absolute inset-0 bg-black bg-opacity-50"></div>
+        <div className="absolute inset-0 bg-gray bg-opacity-50"></div>
       </div>
 
       <div className="hidden lg:flex relative w-1/2 z-10">
