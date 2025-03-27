@@ -1,7 +1,4 @@
-interface User {
-  email: string;
-  password: string;
-}
+import { User } from "@/types/user";
 
 export function login(
   email: string,
