@@ -7,7 +7,7 @@ This is a simple Workflow Management System built to demonstrate front-end devel
 - **Login & Persistent Authentication:** Users log in once, and session data is stored in localStorage for automatic authentication.
 - **Workflow Management:** Fetches workflow data from an external API and displays it in a structured table with pagination.
 - **Search Functionality:** Allows users to search workflows by name or ID.
-- **Responsive UI:** Styled with Tailwind CSS for a sleek and modern look.
+- **Pinning Workflows:** Users can pin workflows to the top of the list by clicking the pin button, which fills with yellow when pinned.
 
 ## Technologies Used
 
@@ -20,7 +20,7 @@ This is a simple Workflow Management System built to demonstrate front-end devel
 ## Live URL
 
 The app is deployed at:
-**https://workflow-management-system.vercel.app**
+**https://workflow-management-kappa.vercel.app/**
 
 ## Getting Started
 
