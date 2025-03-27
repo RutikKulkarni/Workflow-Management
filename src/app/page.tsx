@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
-import { BsPinAngle } from "react-icons/bs";
+import { BsPinAngle, BsPinAngleFill } from "react-icons/bs";
 import { IoArrowDownSharp } from "react-icons/io5";
 import { RxDotsVertical } from "react-icons/rx";
 import { RiSearchLine } from "react-icons/ri";
@@ -16,8 +16,21 @@ interface Workflow {
   lastEditedBy: string;
   lastEditedOn: string;
   description: string;
+  isPinned?: boolean; // Added isPinned property
 }
-
+const PinIcon = ({ isPinned }: { isPinned: boolean }) => {
+  if (isPinned) {
+    return (
+      <span className="inline-block relative">
+        <BsPinAngleFill
+          className="text-yellow-400"
+          style={{ stroke: "black", strokeWidth: "1px" }}
+        />
+      </span>
+    );
+  }
+  return <BsPinAngle />;
+};
 const HomePage = () => {
   const [workflows, setWorkflows] = useState<Workflow[]>([]);
   const [filteredWorkflows, setFilteredWorkflows] = useState<Workflow[]>([]);
@@ -43,8 +56,15 @@ const HomePage = () => {
         const response = await axios.get(
           "https://workflows.free.beeceptor.com/data"
         );
-        setWorkflows(response.data.workflows);
-        setFilteredWorkflows(response.data.workflows);
+        // Add isPinned property to each workflow
+        const workflowsWithPin = response.data.workflows.map(
+          (workflow: Workflow) => ({
+            ...workflow,
+            isPinned: false,
+          })
+        );
+        setWorkflows(workflowsWithPin);
+        setFilteredWorkflows(workflowsWithPin);
       } catch (error) {
         console.error("Error fetching workflows:", error);
       } finally {
@@ -60,9 +80,27 @@ const HomePage = () => {
         workflow.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         workflow.id.toLowerCase().includes(searchQuery.toLowerCase())
     );
-    setFilteredWorkflows(filtered);
+    // Sort to show pinned items first
+    const sortedFiltered = [...filtered].sort(
+      (a, b) => (b.isPinned ? 1 : 0) - (a.isPinned ? 1 : 0)
+    );
+    setFilteredWorkflows(sortedFiltered);
     setCurrentPage(1);
   }, [searchQuery, workflows]);
+
+  const handlePinToggle = (workflowId: string) => {
+    const updatedWorkflows = workflows.map((workflow) =>
+      workflow.id === workflowId
+        ? { ...workflow, isPinned: !workflow.isPinned }
+        : workflow
+    );
+    // Sort to keep pinned items at top
+    const sortedWorkflows = [...updatedWorkflows].sort(
+      (a, b) => (b.isPinned ? 1 : 0) - (a.isPinned ? 1 : 0)
+    );
+    setWorkflows(updatedWorkflows);
+    setFilteredWorkflows(sortedWorkflows);
+  };
 
   const paginatedData = filteredWorkflows.slice(
     (currentPage - 1) * itemsPerPage,
@@ -80,15 +118,6 @@ const HomePage = () => {
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
-      {/* <div className="flex items-center mb-6">
-        <div className="flex items-center">
-          <HiMenuAlt2 className="w-6 h-6 mr-4" />
-          <h1 className="text-3xl font-semibold">Workflow Builder</h1>
-        </div>
-        <button className="bg-black hover:bg-black-700 text-white px-5 py-2 rounded-lg shadow ml-auto">
-          + Create New Process
-        </button>
-      </div> */}
       <div className="flex items-center mb-6">
         <div className="flex items-center">
           <HiMenuAlt2 className="w-6 h-6 mr-4" />
@@ -98,7 +127,7 @@ const HomePage = () => {
           <span className="text-gray-700">Welcome, {user.email}</span>
           <button
             onClick={handleLogout}
-            className=" px-4 py-2 rounded-lg shadow cursor-pointer"
+            className="px-4 py-2 rounded-lg shadow cursor-pointer"
           >
             Logout
           </button>
@@ -151,9 +180,16 @@ const HomePage = () => {
                         {workflow.description}
                       </td>
                       <td className="p-3 flex justify-center gap-2">
-                        <p className="px-3 py-2 rounded">
-                          <BsPinAngle />
-                        </p>
+                        <button
+                          onClick={() => handlePinToggle(workflow.id)}
+                          className="px-3 py-2 rounded hover:bg-gray-200"
+                        >
+                          {workflow.isPinned ? (
+                            <PinIcon isPinned={workflow.isPinned} />
+                          ) : (
+                            <BsPinAngle />
+                          )}
+                        </button>
                         <button className="w-[71px] h-[32px] border border-gray-300 rounded-[6px] px-[12px] py-[7px] text-sm bg-white hover:bg-gray-100">
                           Execute
                         </button>
