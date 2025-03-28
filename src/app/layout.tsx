@@ -14,7 +14,8 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     <html lang="en">
       <body className={`${poppins.className} min-h-screen bg-gray-100`}>
         <SnackbarWrapper>
-          <main className="container mx-auto p-4">{children}</main>
+          {/* <main className="container mx-auto p-4">{children}</main> */}
+          <main>{children}</main>
         </SnackbarWrapper>
       </body>
     </html>

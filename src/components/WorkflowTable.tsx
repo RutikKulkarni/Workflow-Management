@@ -66,7 +66,8 @@ export const WorkflowTable = ({
 
   return (
     <>
-      <table className="w-full border-collapse">
+    <div className="max-h-[80vh] overflow-y-auto">
+  <table className="w-full border-collapse">
         <thead>
           <tr className="border-b text-gray-700 text-left">
             <th className="p-3">Workflow Name</th>
@@ -159,6 +160,7 @@ export const WorkflowTable = ({
         onConfirm={handleConfirmExecute}
         workflowName={selectedWorkflow || ""}
       />
+      </div>
     </>
   );
 };

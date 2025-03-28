@@ -149,6 +149,8 @@ export default function HomePage() {
   if (!user) return null;
 
   return (
+    // <div className="container mx-auto p-4">
+    <div className="container-center mx-6 p-2 min-h-screen flex flex-col">
     <div className="p-6 bg-gray-50 min-h-screen">
       <header className="flex items-center mb-6">
         <div className="flex items-center">
@@ -209,6 +211,7 @@ export default function HomePage() {
           />
         </>
       )}
+    </div>
     </div>
   );
 }

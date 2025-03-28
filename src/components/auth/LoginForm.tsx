@@ -1,10 +1,7 @@
 import { useState, FormEvent } from "react";
-import { FaGoogle, FaFacebook, FaApple } from "react-icons/fa";
-
-interface LoginFormProps {
-  onSubmit: (email: string, password: string, rememberMe: boolean) => void;
-  error: string | null;
-}
+import { FaFacebook, FaApple } from "react-icons/fa";
+import { FcGoogle } from "react-icons/fc";
+import {LoginFormProps} from "@/types/login"
 
 export function LoginForm({ onSubmit, error }: LoginFormProps) {
   const [email, setEmail] = useState("");
@@ -17,7 +14,7 @@ export function LoginForm({ onSubmit, error }: LoginFormProps) {
   };
 
   return (
-    <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-lg">
+    <div className="w-full max-w-md bg-white p-8 rounded-t-lg rounded-b-none shadow-lg">
       <h2 className="text-xl font-semibold text-gray-700 text-center">
         WELCOME BACK!
       </h2>
@@ -68,7 +65,7 @@ export function LoginForm({ onSubmit, error }: LoginFormProps) {
 
         <button
           type="submit"
-          className="w-full py-3 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors"
+          className="w-full py-3 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors  cursor-pointer"
         >
           Log In
         </button>
@@ -82,15 +79,16 @@ export function LoginForm({ onSubmit, error }: LoginFormProps) {
 
       <div className="mt-4 space-y-3">
         {[
-          { Icon: FaGoogle, text: "Google" },
-          { Icon: FaFacebook, text: "Facebook" },
+          { Icon: FcGoogle, text: "Google" },
+          { Icon: FaFacebook, text: "Facebook", colorClass: "text-blue-600" },
           { Icon: FaApple, text: "Apple" },
         ].map(({ Icon, text }) => (
           <button
             key={text}
-            className="w-full flex items-center justify-center py-2 border rounded-md text-gray-700 hover:bg-gray-100 transition-colors"
+            className="w-full flex items-center py-2 border rounded-md text-gray-700 hover:bg-gray-100 transition-colors relative"
           >
-            <Icon className="mr-2" /> Log In with {text}
+            <Icon className="absolute left-4" />
+            <span className="flex-1 text-center">Log In with {text}</span>
           </button>
         ))}
       </div>

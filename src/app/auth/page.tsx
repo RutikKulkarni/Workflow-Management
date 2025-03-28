@@ -39,7 +39,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="relative flex h-screen">
+    <div className="flex h-screen">
       <div className="absolute inset-0 z-0">
         <Image
           src={bgImage}
@@ -49,13 +49,18 @@ export default function LoginPage() {
           quality={100}
           priority
         />
-        <div className="absolute inset-0 bg-gray bg-opacity-50"></div>
+        <div
+          className="absolute inset-0"
+          style={{ backgroundColor: "rgba(48, 51, 53, 0.5)" }}
+        ></div>
       </div>
 
       <BrandSection />
 
-      <div className="flex flex-col justify-center items-center w-full lg:w-1/2 px-8 md:px-16 z-10">
-        <LoginForm onSubmit={handleLogin} error={error} />
+      <div className="flex flex-col justify-end w-full lg:w-1/2 px-8 md:px-16 z-10">
+        <div className="pb-0">
+          <LoginForm onSubmit={handleLogin} error={error} />
+        </div>
       </div>
     </div>
   );
