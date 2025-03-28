@@ -10,6 +10,7 @@ export interface Workflow {
 export interface WorkflowTableProps {
   workflows: Workflow[];
   onPinToggle: (workflowId: string) => void;
+  onDelete?: (workflowId: string) => void;
 }
 
 export interface CreateWorkflowModalProps {
@@ -17,4 +18,11 @@ export interface CreateWorkflowModalProps {
   onClose: () => void;
   onCreate: (workflow: Workflow) => void;
   userEmail: string;
+}
+
+export interface ExecuteConfirmationModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+  workflowName: string;
 }

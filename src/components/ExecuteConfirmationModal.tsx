@@ -1,12 +1,6 @@
 import React from "react";
 import { IoClose } from "react-icons/io5";
-
-interface ExecuteConfirmationModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onConfirm: () => void;
-  workflowName: string;
-}
+import {ExecuteConfirmationModalProps} from "@/types/workflow"
 
 export const ExecuteConfirmationModal = ({
   isOpen,

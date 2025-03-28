@@ -114,6 +114,20 @@ export default function HomePage() {
     );
   };
 
+  const handleDelete = async (workflowId: string) => {
+    try {
+      await axios.delete(`${API_URLS.WORKFLOWS}/${workflowId}`);
+
+      const updatedWorkflows = workflows.filter(
+        (workflow) => workflow.id !== workflowId
+      );
+      setWorkflows(updatedWorkflows);
+    } catch (error) {
+      console.error("Error deleting workflow:", error);
+      enqueueSnackbar("Failed to delete workflow", { variant: "error" });
+    }
+  };
+
   const handleLogout = () => {
     try {
       logout();
@@ -123,7 +137,7 @@ export default function HomePage() {
       console.error("Error during logout:", error);
       enqueueSnackbar("Logout failed. Please try again.", {
         variant: "error",
-      }); 
+      });
     }
   };
 
@@ -185,6 +199,7 @@ export default function HomePage() {
           <WorkflowTable
             workflows={paginatedData}
             onPinToggle={handlePinToggle}
+            onDelete={handleDelete}
           />
           <Pagination
             totalItems={filteredWorkflows.length}
