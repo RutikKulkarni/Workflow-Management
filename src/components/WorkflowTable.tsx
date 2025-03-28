@@ -10,6 +10,7 @@ import Image from "next/image";
 import passTag from "@/assets/pass-tag.svg";
 import failTag from "@/assets/fail-tag.svg";
 import Icon from "@/assets/icon.svg";
+import { useRouter } from "next/navigation";
 
 export const WorkflowTable = ({
   workflows,
@@ -21,6 +22,7 @@ export const WorkflowTable = ({
   const [showDeleteMenu, setShowDeleteMenu] = useState<string | null>(null);
   const [expandedRow, setExpandedRow] = useState<string | null>(null);
   const { enqueueSnackbar } = useSnackbar();
+  const router = useRouter();
 
   const handleExecuteClick = (workflowName: string) => {
     setSelectedWorkflow(workflowName);
@@ -96,7 +98,13 @@ export const WorkflowTable = ({
                       >
                         Execute
                       </button>
-                      <button className="border border-gray-300 rounded-[6px] px-[12px] py-[7px] text-sm bg-white hover:bg-gray-100 cursor-pointer">
+                      {/* <button className="border border-gray-300 rounded-[6px] px-[12px] py-[7px] text-sm bg-white hover:bg-gray-100 cursor-pointer">
+                        Edit
+                      </button> */}
+                      <button
+                        onClick={() => router.push(`/edit`)}
+                        className="border border-gray-300 rounded-[6px] px-[12px] py-[7px] text-sm bg-white hover:bg-gray-100 cursor-pointer"
+                      >
                         Edit
                       </button>
                       <div className="relative">
