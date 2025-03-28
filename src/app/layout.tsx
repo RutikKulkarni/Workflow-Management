@@ -1,6 +1,7 @@
 import { Poppins } from "next/font/google";
 import { ReactNode } from "react";
 import "./globals.css";
+import SnackbarWrapper from "@/components/SnackbarWrapper";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -12,7 +13,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
       <body className={`${poppins.className} min-h-screen bg-gray-100`}>
-        <main className="container mx-auto p-4">{children}</main>
+        <SnackbarWrapper>
+          <main className="container mx-auto p-4">{children}</main>
+        </SnackbarWrapper>
       </body>
     </html>
   );

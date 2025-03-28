@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { useSnackbar } from "notistack";
 import bgImage from "@/assets/background.png";
 import { login, getCurrentUser } from "@/lib/auth";
 import { LoginForm } from "@/components/auth/LoginForm";
@@ -11,6 +12,7 @@ import { BrandSection } from "@/components/auth/BrandSection";
 export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const { enqueueSnackbar } = useSnackbar();
 
   useEffect(() => {
     const currentUser = getCurrentUser();
@@ -19,7 +21,7 @@ export default function LoginPage() {
     }
   }, [router]);
 
-  const handleLogin = (
+  const handleLogin = async (
     email: string,
     password: string,
     rememberMe: boolean
@@ -27,9 +29,12 @@ export default function LoginPage() {
     setError(null);
     try {
       login(email, password, rememberMe);
+      enqueueSnackbar("Login successful!", { variant: "success" });
       router.push("/");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Login failed");
+      const errorMessage = err instanceof Error ? err.message : "Login failed";
+      setError(errorMessage);
+      enqueueSnackbar(errorMessage, { variant: "error" });
     }
   };
 

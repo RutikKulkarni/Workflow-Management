@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import axios from "axios";
 import { HiMenuAlt2 } from "react-icons/hi";
 import { RiSearchLine } from "react-icons/ri";
+import { useSnackbar } from "notistack";
 import { WorkflowTable } from "@/components/WorkflowTable";
 import { Pagination } from "@/components/Pagination";
 import { CreateWorkflowModal } from "@/components/CreateWorkflowModal";
@@ -23,6 +24,7 @@ export default function HomePage() {
   const [user, setUser] = useState<{ email: string } | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const router = useRouter();
+  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
   useEffect(() => {
     const currentUser = getCurrentUser();
@@ -53,6 +55,12 @@ export default function HomePage() {
 
   const fetchWorkflows = async () => {
     setIsLoading(true);
+
+    const fetchingSnackbarKey = enqueueSnackbar("Fetching the Workflow data", {
+      variant: "info",
+      persist: true,
+    });
+
     try {
       const response = await axios.get(API_URLS.WORKFLOWS);
       const workflowsWithPin = response.data.workflows.map(
@@ -63,8 +71,20 @@ export default function HomePage() {
       );
       setWorkflows(workflowsWithPin);
       setFilteredWorkflows(workflowsWithPin);
+
+      closeSnackbar(fetchingSnackbarKey);
+
+      enqueueSnackbar("Workflow data fetched successfully", {
+        variant: "success",
+      });
     } catch (error) {
       console.error("Error fetching workflows:", error);
+      closeSnackbar(fetchingSnackbarKey);
+
+      enqueueSnackbar("Failed to fetch workflows", {
+        variant: "error",
+        autoHideDuration: 6000,
+      });
     } finally {
       setIsLoading(false);
     }
@@ -76,6 +96,16 @@ export default function HomePage() {
         ? { ...workflow, isPinned: !workflow.isPinned }
         : workflow
     );
+    const toggledWorkflow = updatedWorkflows.find(
+      (workflow) => workflow.id === workflowId
+    );
+
+    if (toggledWorkflow?.isPinned) {
+      enqueueSnackbar(`${toggledWorkflow.name} Pinned`, { variant: "info" });
+    } else {
+      enqueueSnackbar(`${toggledWorkflow?.name} Unpinned`, { variant: "info" });
+    }
+
     setWorkflows(updatedWorkflows);
     setFilteredWorkflows(
       [...updatedWorkflows].sort(
@@ -85,8 +115,16 @@ export default function HomePage() {
   };
 
   const handleLogout = () => {
-    logout();
-    router.push("/auth");
+    try {
+      logout();
+      enqueueSnackbar("Logout successful!", { variant: "success" });
+      router.push("/auth");
+    } catch (error) {
+      console.error("Error during logout:", error);
+      enqueueSnackbar("Logout failed. Please try again.", {
+        variant: "error",
+      }); 
+    }
   };
 
   const paginatedData = filteredWorkflows.slice(
@@ -134,7 +172,6 @@ export default function HomePage() {
       <CreateWorkflowModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        // onCreate={(newWorkflow) => setWorkflows([...workflows, newWorkflow])}
         onCreate={(newWorkflow) => setWorkflows([newWorkflow, ...workflows])}
         userEmail={user.email}
       />
