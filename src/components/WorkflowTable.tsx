@@ -5,7 +5,7 @@ import { IoArrowDownSharp, IoArrowUpSharp } from "react-icons/io5";
 import { RxDotsVertical } from "react-icons/rx";
 import { ExecuteConfirmationModal } from "./ExecuteConfirmationModal";
 import { useSnackbar } from "notistack";
-import { FaExternalLinkAlt } from "react-icons/fa";
+import { TbExternalLink } from "react-icons/tb";
 import Image from "next/image";
 import passTag from "@/assets/pass-tag.svg";
 import failTag from "@/assets/fail-tag.svg";
@@ -155,8 +155,8 @@ export const WorkflowTable = ({
                               className="pr-2"
                             />
                             <span className="font-[400] text-[14px] pr-2">{workflow.lastEditedOn}</span>
-                            <span>
-                              <FaExternalLinkAlt />
+                            <span onClick={() => router.push(`/edit`)} className="cursor-pointer">
+                              <TbExternalLink />
                             </span>
                           </div>
                         </td>
@@ -181,8 +181,8 @@ export const WorkflowTable = ({
                               className="pr-2"
                             />
                             <span className="font-[400] text-[14px] pr-2">{workflow.lastEditedOn}</span>
-                            <span>
-                              <FaExternalLinkAlt />
+                            <span onClick={() => router.push(`/edit`)} className="cursor-pointer">
+                              <TbExternalLink />
                             </span>
                           </div>
                         </td>
