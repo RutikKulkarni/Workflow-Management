@@ -145,13 +145,13 @@ export default function HomePage() {
           <span className="text-gray-700">Welcome, {user.email}</span>
           <button
             onClick={handleLogout}
-            className="px-4 py-2 rounded-lg shadow hover:bg-gray-100"
+            className="px-4 py-2 rounded-lg shadow hover:bg-gray-100 cursor-pointer"
           >
             Logout
           </button>
           <button
             onClick={() => setIsModalOpen(true)}
-            className="bg-black hover:bg-gray-800 text-white px-5 py-2 rounded-lg shadow"
+            className="bg-black hover:bg-gray-800 text-white px-5 py-2 rounded-lg shadow cursor-pointer"
           >
             + Create New Process
           </button>

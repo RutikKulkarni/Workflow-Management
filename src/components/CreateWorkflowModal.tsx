@@ -45,7 +45,7 @@ export function CreateWorkflowModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-gray-400 bg-opacity-50 flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-gray-500/50 flex items-center justify-center z-50">
       <div className="bg-white p-6 rounded-lg shadow-lg w-[400px]">
         <h2 className="text-xl font-semibold mb-4">Create New Process</h2>
         <form onSubmit={handleSubmit}>
@@ -83,13 +83,13 @@ export function CreateWorkflowModal({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300"
+              className="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800"
+              className="px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800 cursor-pointer"
             >
               Create
             </button>
