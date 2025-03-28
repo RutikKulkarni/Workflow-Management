@@ -134,7 +134,8 @@ export default function HomePage() {
       <CreateWorkflowModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        onCreate={(newWorkflow) => setWorkflows([...workflows, newWorkflow])}
+        // onCreate={(newWorkflow) => setWorkflows([...workflows, newWorkflow])}
+        onCreate={(newWorkflow) => setWorkflows([newWorkflow, ...workflows])}
         userEmail={user.email}
       />
 

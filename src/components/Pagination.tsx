@@ -1,9 +1,4 @@
-interface PaginationProps {
-  totalItems: number;
-  itemsPerPage: number;
-  currentPage: number;
-  onPageChange: (page: number) => void;
-}
+import { PaginationProps } from "@/types/pagination";
 
 export const Pagination = ({
   totalItems,
@@ -18,11 +13,10 @@ export const Pagination = ({
       {Array.from({ length: totalPages }, (_, i) => (
         <button
           key={i}
-          className={`px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 ease-in-out ${
-            currentPage === i + 1
+          className={`px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 ease-in-out ${currentPage === i + 1
               ? "bg-black text-white shadow-md"
               : "bg-gray-100 text-gray-700"
-          }`}
+            }`}
           onClick={() => onPageChange(i + 1)}
         >
           {i + 1}

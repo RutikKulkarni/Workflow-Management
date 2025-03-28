@@ -1,14 +1,5 @@
 import { useState } from "react";
-import axios from "axios";
-import { Workflow } from "@/types/workflow";
-import { API_URLS } from "@/lib/api";
-
-interface CreateWorkflowModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onCreate: (workflow: Workflow) => void;
-  userEmail: string;
-}
+import { Workflow, CreateWorkflowModalProps } from "@/types/workflow";
 
 export function CreateWorkflowModal({
   isOpen,
@@ -21,38 +12,34 @@ export function CreateWorkflowModal({
     description: "",
   });
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      const currentTime = new Date().toLocaleString("en-US", {
-        timeZone: "Asia/Kolkata",
-        hour12: false,
-        hour: "2-digit",
-        minute: "2-digit",
-      });
-      const currentDate = new Date().toLocaleString("en-US", {
-        timeZone: "Asia/Kolkata",
-        day: "2-digit",
-        month: "2-digit",
-        year: "2-digit",
-      });
-      const formattedTime = `${currentTime} IST-${currentDate}`;
 
-      const workflowData = {
-        ...newWorkflow,
-        id: `#${String(Math.floor(Math.random() * 1000)).padStart(3, "0")}`,
-        lastEditedBy: userEmail.split("@")[0] || "Unknown User",
-        lastEditedOn: formattedTime,
-        isPinned: false,
-      };
+    const currentTime = new Date().toLocaleString("en-US", {
+      timeZone: "Asia/Kolkata",
+      hour12: false,
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+    const currentDate = new Date().toLocaleString("en-US", {
+      timeZone: "Asia/Kolkata",
+      day: "2-digit",
+      month: "2-digit",
+      year: "2-digit",
+    });
+    const formattedTime = `${currentTime} IST-${currentDate}`;
 
-      const response = await axios.post(API_URLS.WORKFLOWS, workflowData);
-      onCreate(response.data);
-      setNewWorkflow({ name: "", description: "" });
-      onClose();
-    } catch (error) {
-      console.error("Error creating workflow:", error);
-    }
+    const workflowData: Workflow = {
+      ...newWorkflow,
+      id: `#${String(Math.floor(Math.random() * 1000)).padStart(3, "0")}`,
+      lastEditedBy: userEmail.split("@")[0] || "Unknown User",
+      lastEditedOn: formattedTime,
+      isPinned: false,
+    };
+
+    onCreate(workflowData);
+    setNewWorkflow({ name: "", description: "" });
+    onClose();
   };
 
   if (!isOpen) return null;

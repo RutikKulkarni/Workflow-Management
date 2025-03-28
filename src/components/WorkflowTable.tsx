@@ -1,12 +1,7 @@
-import { Workflow } from "@/types/workflow";
+import { WorkflowTableProps } from "@/types/workflow";
 import { PinIcon } from "./PinIcon";
 import { IoArrowDownSharp } from "react-icons/io5";
 import { RxDotsVertical } from "react-icons/rx";
-
-interface WorkflowTableProps {
-  workflows: Workflow[];
-  onPinToggle: (workflowId: string) => void;
-}
 
 export const WorkflowTable = ({
   workflows,
