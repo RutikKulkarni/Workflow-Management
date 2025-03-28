@@ -5,6 +5,7 @@ export interface Workflow {
   lastEditedOn: string;
   description: string;
   isPinned?: boolean;
+  process?: string;
 }
 
 export interface WorkflowTableProps {
