@@ -149,69 +149,68 @@ export default function HomePage() {
   if (!user) return null;
 
   return (
-    // <div className="container mx-auto p-4">
-    <div className="container-center mx-6 p-2 min-h-screen flex flex-col">
-    <div className="p-6 bg-gray-50 min-h-screen">
-      <header className="flex items-center mb-6">
-        <div className="flex items-center">
-          <HiMenuAlt2 className="w-6 h-6 mr-4" />
-          <h1 className="text-3xl font-semibold">Workflow Builder</h1>
-        </div>
-        <div className="ml-auto flex items-center gap-4">
-          <span className="text-gray-700">Welcome, {user.email}</span>
-          <button
-            onClick={handleLogout}
-            className="px-4 py-2 rounded-lg shadow hover:bg-gray-100 cursor-pointer"
-          >
-            Logout
-          </button>
-          <button
-            onClick={() => setIsModalOpen(true)}
-            className="bg-black hover:bg-gray-800 text-white px-5 py-2 rounded-lg shadow cursor-pointer"
-          >
-            + Create New Process
-          </button>
-        </div>
-      </header>
+    <div className="container mx-auto p-4 flex flex-col min-h-screen">
+      <div className="p-6 bg-gray-50 flex-grow">
+        <header className="flex items-center mb-6">
+          <div className="flex items-center">
+            <HiMenuAlt2 className="w-6 h-6 mr-4" />
+            <h1 className="text-3xl font-semibold">Workflow Builder</h1>
+          </div>
+          <div className="ml-auto flex items-center gap-4">
+            <span className="text-gray-700">Welcome, {user.email}</span>
+            <button
+              onClick={handleLogout}
+              className="px-4 py-2 rounded-lg shadow hover:bg-gray-100 cursor-pointer"
+            >
+              Logout
+            </button>
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className="bg-black hover:bg-gray-800 text-white px-5 py-2 rounded-lg shadow cursor-pointer"
+            >
+              + Create New Process
+            </button>
+          </div>
+        </header>
 
-      <div className="relative w-[340px] h-[32px] pb-[2px] mb-6">
-        <input
-          type="text"
-          placeholder="Search By Workflow Name/ID"
-          className="w-full h-full pl-[10px] pr-[40px] text-[14px] border border-gray-300 rounded-md shadow-sm"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+        <div className="relative w-[340px] h-[32px] pb-[2px] mb-6">
+          <input
+            type="text"
+            placeholder="Search By Workflow Name/ID"
+            className="w-full h-full pl-[10px] pr-[40px] text-[14px] border border-gray-300 rounded-md shadow-sm"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+          <RiSearchLine className="absolute top-[9px] left-[312px] w-[14px] h-[14px] text-gray-500" />
+        </div>
+
+        <CreateWorkflowModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          onCreate={(newWorkflow) => setWorkflows([newWorkflow, ...workflows])}
+          userEmail={user.email}
         />
-        <RiSearchLine className="absolute top-[9px] left-[312px] w-[14px] h-[14px] text-gray-500" />
+
+        {isLoading ? (
+          <div className="flex justify-center items-center h-64">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-900" />
+          </div>
+        ) : (
+          <>
+            <WorkflowTable
+              workflows={paginatedData}
+              onPinToggle={handlePinToggle}
+              onDelete={handleDelete}
+            />
+            <Pagination
+              totalItems={filteredWorkflows.length}
+              itemsPerPage={ITEMS_PER_PAGE}
+              currentPage={currentPage}
+              onPageChange={setCurrentPage}
+            />
+          </>
+        )}
       </div>
-
-      <CreateWorkflowModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onCreate={(newWorkflow) => setWorkflows([newWorkflow, ...workflows])}
-        userEmail={user.email}
-      />
-
-      {isLoading ? (
-        <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-900" />
-        </div>
-      ) : (
-        <>
-          <WorkflowTable
-            workflows={paginatedData}
-            onPinToggle={handlePinToggle}
-            onDelete={handleDelete}
-          />
-          <Pagination
-            totalItems={filteredWorkflows.length}
-            itemsPerPage={ITEMS_PER_PAGE}
-            currentPage={currentPage}
-            onPageChange={setCurrentPage}
-          />
-        </>
-      )}
-    </div>
     </div>
   );
 }
