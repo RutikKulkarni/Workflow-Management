@@ -8,12 +8,12 @@ export default function EditPage() {
     { id: 'end', type: 'end', content: 'End' }
   ]);
   const [showOptions, setShowOptions] = useState(false);
-  const canvasRef = useRef(null);
+  const canvasRef = useRef<HTMLDivElement>(null); // Added type for TypeScript
 
-  const addNode = (type:any) => {
+  const addNode = (type: string) => { // Changed 'any' to 'string' for better typing
     const newNode = {
       id: Date.now().toString(),
-      type: type,
+      type,
       content: type === 'api' ? 'API Call' : type === 'email' ? 'Email' : 'Text Box'
     };
     
@@ -25,7 +25,7 @@ export default function EditPage() {
     setShowOptions(false);
   };
 
-  const deleteNode = (id:any) => {
+  const deleteNode = (id: string) => { // Changed 'any' to 'string' for better typing
     setNodes(prev => prev.filter(node => node.id !== id));
   };
 
@@ -124,6 +124,7 @@ export default function EditPage() {
     </div>
   );
 }
+
 
 // "use client";
 

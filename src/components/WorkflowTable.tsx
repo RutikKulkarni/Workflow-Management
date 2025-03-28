@@ -80,7 +80,7 @@ export const WorkflowTable = ({
                 <React.Fragment key={workflow.id}>
                   <tr className="hover:bg-gray-100">
                     <td className="p-3">{workflow.name}</td>
-                    <td className="p-3 text-center text-gray-600">{workflow.id}</td>
+                    <td className="p-3 text-center text-gray-600">#{workflow.id}</td>
                     <td className="p-3 text-left text-gray-600">
                       {workflow.lastEditedBy} | {workflow.lastEditedOn}
                     </td>
