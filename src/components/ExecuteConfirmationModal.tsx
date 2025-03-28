@@ -1,6 +1,6 @@
 import React from "react";
 import { IoClose } from "react-icons/io5";
-import {ExecuteConfirmationModalProps} from "@/types/workflow"
+import { ExecuteConfirmationModalProps } from "@/types/workflow";
 
 export const ExecuteConfirmationModal = ({
   isOpen,
@@ -24,7 +24,7 @@ export const ExecuteConfirmationModal = ({
           <div className="text-center">
             <p className="text-lg text-gray-800">
               Are you sure you want to Execute the process{" "}
-              <span className="font-semibold">'{workflowName}'</span>?
+              <span className="font-semibold">{`'${workflowName}'`}</span>?
             </p>
             <p className="text-red-600 text-sm mt-2">You cannot undo this step</p>
           </div>
