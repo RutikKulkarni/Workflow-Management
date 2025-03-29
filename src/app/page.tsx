@@ -8,7 +8,7 @@ import { RiSearchLine } from "react-icons/ri";
 import { useSnackbar } from "notistack";
 import { WorkflowTable } from "@/components/WorkflowTable";
 import { Pagination } from "@/components/Pagination";
-import { CreateWorkflowModal } from "@/components/CreateWorkflowModal";
+import { CreateWorkflowModal } from "@/components/Modals/SaveWorkflow";
 import { Workflow } from "@/types/workflow";
 import { getCurrentUser, logout } from "@/lib/auth";
 import { API_URLS } from "@/lib/api";
@@ -149,39 +149,46 @@ export default function HomePage() {
   if (!user) return null;
 
   return (
-    <div className="container mx-auto p-4 flex flex-col min-h-screen">
-      <div className="p-6 bg-gray-50 flex-grow">
-        <header className="flex items-center mb-6">
-          <div className="flex items-center">
-            <HiMenuAlt2 className="w-6 h-6 mr-4" />
-            <h1 className="text-3xl font-semibold">Workflow Builder</h1>
+    <div className="min-h-screen bg-[#fdfbf6]">
+      <div className="max-w-[1440px] mx-auto px-6 py-4">
+        <header className="flex items-center justify-between mb-8">
+          <div className="flex items-center gap-4">
+            <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+              <HiMenuAlt2 className="w-6 h-6 text-[#221f20]" />
+            </button>
+            <h1 className="font-semibold text-[22px] text-[#221f20]">
+              Workflow Builder
+            </h1>
           </div>
-          <div className="ml-auto flex items-center gap-4">
-            <span className="text-gray-700">Welcome, {user.email}</span>
+          <div className="flex items-center gap-6">
+            <span className="text-[14px] text-[#4f4f4f]">{user.email}</span>
             <button
               onClick={handleLogout}
-              className="px-4 py-2 rounded-lg shadow hover:bg-gray-100 cursor-pointer"
+              className="text-[14px] text-[#221f20] hover:text-[#3a3738]"
             >
               Logout
-            </button>
-            <button
-              onClick={() => setIsModalOpen(true)}
-              className="bg-black hover:bg-gray-800 text-white px-5 py-2 rounded-lg shadow cursor-pointer"
-            >
-              + Create New Process
             </button>
           </div>
         </header>
 
-        <div className="relative w-[340px] h-[32px] pb-[2px] mb-6">
-          <input
-            type="text"
-            placeholder="Search By Workflow Name/ID"
-            className="w-full h-full pl-[10px] pr-[40px] text-[14px] border border-gray-300 rounded-md shadow-sm"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-          <RiSearchLine className="absolute top-[9px] left-[312px] w-[14px] h-[14px] text-gray-500" />
+        <div className="flex justify-between items-center mb-6">
+          <div className="relative w-[340px]">
+            <input
+              type="text"
+              placeholder="Search By Workflow Name/ID"
+              className="w-full h-8 pl-3 pr-10 text-xs border border-[#e0e0e0] rounded focus:outline-none focus:ring-1 focus:ring-[#221f20]"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            <RiSearchLine className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#bdbdbd]" />
+          </div>
+
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="bg-[#221f20] hover:bg-[#3a3738] text-white px-3 py-[7px] rounded text-xs font-medium transition-colors cursor-pointer"
+          >
+            + Create New Process
+          </button>
         </div>
 
         <CreateWorkflowModal
@@ -191,25 +198,29 @@ export default function HomePage() {
           userEmail={user.email}
         />
 
-        {isLoading ? (
-          <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-900" />
-          </div>
-        ) : (
-          <>
-            <WorkflowTable
-              workflows={paginatedData}
-              onPinToggle={handlePinToggle}
-              onDelete={handleDelete}
-            />
-            <Pagination
-              totalItems={filteredWorkflows.length}
-              itemsPerPage={ITEMS_PER_PAGE}
-              currentPage={currentPage}
-              onPageChange={setCurrentPage}
-            />
-          </>
-        )}
+        <div className="bg-white rounded-lg">
+          {isLoading ? (
+            <div className="flex justify-center items-center h-64">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#221f20]" />
+            </div>
+          ) : (
+            <>
+              <WorkflowTable
+                workflows={paginatedData}
+                onPinToggle={handlePinToggle}
+                onDelete={handleDelete}
+              />
+              <div className="border-t border-[#f8f2e7]">
+                <Pagination
+                  totalItems={filteredWorkflows.length}
+                  itemsPerPage={ITEMS_PER_PAGE}
+                  currentPage={currentPage}
+                  onPageChange={setCurrentPage}
+                />
+              </div>
+            </>
+          )}
+        </div>
       </div>
     </div>
   );

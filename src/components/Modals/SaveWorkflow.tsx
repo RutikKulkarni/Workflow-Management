@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Workflow, CreateWorkflowModalProps } from "@/types/workflow";
+import { IoClose } from "react-icons/io5";
 
 export function CreateWorkflowModal({
   isOpen,
@@ -31,7 +32,7 @@ export function CreateWorkflowModal({
 
     const workflowData: Workflow = {
       ...newWorkflow,
-      id: `#${String(Math.floor(Math.random() * 1000)).padStart(3, "0")}`,
+      id: `${String(Math.floor(Math.random() * 1000)).padStart(3, "0")}`,
       lastEditedBy: userEmail.split("@")[0] || "Unknown User",
       lastEditedOn: formattedTime,
       isPinned: false,
@@ -46,52 +47,65 @@ export function CreateWorkflowModal({
 
   return (
     <div className="fixed inset-0 bg-gray-500/50 flex items-center justify-center z-50">
-      <div className="bg-white p-6 rounded-lg shadow-lg w-[400px]">
-        <h2 className="text-xl font-semibold mb-4">Create New Process</h2>
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+      <div className="bg-white rounded-[8px] shadow-[0px_0px_60px_0px_rgba(98,127,172,0.2)] w-[596px] relative flex flex-col">
+        <div className="p-4 flex justify-between items-center border-b border-[#e0e0e0]">
+          <h2 className="text-xl font-semibold">Save your workflow</h2>
+          <div>
+            <button
+              onClick={onClose}
+              className="text-gray-600 cursor-pointer rounded-full h-9 w-9 flex items-center justify-center"
+            >
+              <IoClose size={16} />
+            </button>
+          </div>
+        </div>
+
+        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          <div className="space-y-1.5">
+            <label
+              htmlFor="name"
+              className="block text-sm font-medium text-gray-700"
+            >
               Name
             </label>
             <input
-              aria-label="Name of workflow"
+              id="name"
               type="text"
               value={newWorkflow.name}
               onChange={(e) =>
                 setNewWorkflow({ ...newWorkflow, name: e.target.value })
               }
-              className="w-full p-2 border border-gray-300 rounded-md"
+              placeholder="Enter workflow name"
+              className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-200"
               required
             />
           </div>
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+
+          <div className="space-y-1.5">
+            <label
+              htmlFor="description"
+              className="block text-sm font-medium text-gray-700"
+            >
               Description
             </label>
             <textarea
-              aria-label="Description"
+              id="description"
               value={newWorkflow.description}
               onChange={(e) =>
                 setNewWorkflow({ ...newWorkflow, description: e.target.value })
               }
-              className="w-full p-2 border border-gray-300 rounded-md"
-              rows={3}
+              placeholder="Enter workflow description"
+              className="w-full p-2 border border-gray-300 rounded-md min-h-[80px] focus:outline-none focus:ring-2 focus:ring-gray-200"
               required
             />
           </div>
-          <div className="flex justify-end gap-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 cursor-pointer"
-            >
-              Cancel
-            </button>
+
+          <div className="p-4 border-t border-[#e0e0e0] flex justify-end gap-4">
             <button
               type="submit"
-              className="px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800 cursor-pointer"
+              className="px-4 py-2 bg-[#ee3425] text-white rounded-md cursor-pointer"
             >
-              Create
+              Save
             </button>
           </div>
         </form>

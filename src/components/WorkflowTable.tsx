@@ -3,13 +3,12 @@ import { WorkflowTableProps } from "@/types/workflow";
 import { PinIcon } from "./PinIcon";
 import { IoArrowDownSharp, IoArrowUpSharp } from "react-icons/io5";
 import { RxDotsVertical } from "react-icons/rx";
-import { ExecuteConfirmationModal } from "./ExecuteConfirmationModal";
+import { ExecuteConfirmationModal } from "./Modals/Confirmation";
 import { useSnackbar } from "notistack";
 import { TbExternalLink } from "react-icons/tb";
 import Image from "next/image";
 import passTag from "@/assets/pass-tag.svg";
 import failTag from "@/assets/fail-tag.svg";
-import Icon from "@/assets/icon.svg";
 import { useRouter } from "next/navigation";
 
 export const WorkflowTable = ({
@@ -17,40 +16,60 @@ export const WorkflowTable = ({
   onPinToggle,
   onDelete,
 }: WorkflowTableProps) => {
-  const [showModal, setShowModal] = useState(false);
-  const [selectedWorkflow, setSelectedWorkflow] = useState<string | null>(null);
+  const [showModal, setShowModal] = useState<"execute" | "delete" | null>(null);
+  const [selectedWorkflow, setSelectedWorkflow] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
   const [showDeleteMenu, setShowDeleteMenu] = useState<string | null>(null);
   const [expandedRow, setExpandedRow] = useState<string | null>(null);
   const { enqueueSnackbar } = useSnackbar();
   const router = useRouter();
 
-  const handleExecuteClick = (workflowName: string) => {
-    setSelectedWorkflow(workflowName);
-    setShowModal(true);
+  const handleExecuteClick = (workflowId: string, workflowName: string) => {
+    setSelectedWorkflow({ id: workflowId, name: workflowName });
+    setShowModal("execute");
   };
 
   const handleConfirmExecute = () => {
-    console.log(`Executing workflow: ${selectedWorkflow}`);
+    if (selectedWorkflow) {
+      console.log(`Executing workflow: ${selectedWorkflow.name}`);
+    }
+    setShowModal(null);
+    setSelectedWorkflow(null);
   };
 
-  const handleDeleteClick = async (workflowId: string, workflowName: string) => {
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      if (onDelete) {
-        onDelete(workflowId);
+  const handleDeleteClick = (workflowId: string, workflowName: string) => {
+    setSelectedWorkflow({ id: workflowId, name: workflowName });
+    setShowModal("delete");
+    setShowDeleteMenu(null);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (selectedWorkflow) {
+      try {
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        if (onDelete) {
+          onDelete(selectedWorkflow.id);
+        }
+        enqueueSnackbar(
+          `Workflow "${selectedWorkflow.name}" deleted successfully`,
+          {
+            variant: "success",
+            autoHideDuration: 3000,
+          }
+        );
+      } catch (error: unknown) {
+        const errorMessage =
+          error instanceof Error ? error.message : "Unknown error";
+        enqueueSnackbar(`Error deleting workflow: ${errorMessage}`, {
+          variant: "error",
+          autoHideDuration: 3000,
+        });
       }
-      enqueueSnackbar(`Workflow "${workflowName}" deleted successfully`, {
-        variant: "success",
-        autoHideDuration: 3000,
-      });
-      setShowDeleteMenu(null);
-    } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : "Unknown error";
-      enqueueSnackbar(`Error deleting workflow: ${errorMessage}`, {
-        variant: "error",
-        autoHideDuration: 3000,
-      });
     }
+    setShowModal(null);
+    setSelectedWorkflow(null);
   };
 
   const toggleDeleteMenu = (workflowId: string) => {
@@ -58,67 +77,85 @@ export const WorkflowTable = ({
   };
 
   const toggleRowExpansion = (workflowId: string) => {
-    setExpandedRow(prev => prev === workflowId ? null : workflowId);
+    setExpandedRow((prev) => (prev === workflowId ? null : workflowId));
   };
 
   return (
-    <>
-      <div className="w-full">
-        <table className="w-full border-collapse">
-          <thead>
-            <tr className="border-b text-gray-700 text-left">
-              <th className="p-3">Workflow Name</th>
-              <th className="p-3 text-center">ID</th>
-              <th className="p-3 text-center">Last Edited</th>
-              <th className="p-3">Description</th>
-              <th className="p-3 text-center">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {workflows.length > 0 ? (
-              workflows.map((workflow) => (
-                <React.Fragment key={workflow.id}>
-                  <tr className="hover:bg-gray-100">
-                    <td className="p-3">{workflow.name}</td>
-                    <td className="p-3 text-center text-gray-600">#{workflow.id}</td>
-                    <td className="p-3 text-left text-gray-600">
-                      {workflow.lastEditedBy} | {workflow.lastEditedOn}
-                    </td>
-                    <td className="p-3 text-gray-600">{workflow.description}</td>
-                    <td className="p-3 flex justify-center gap-2 relative">
+    <div className="w-full">
+      <table className="w-full">
+        <thead>
+          <tr className="border-b-0">
+            <th className="pl-9 py-6 text-left font-medium text-sm text-[#000000]">
+              Workflow Name
+            </th>
+            <th className="py-6 text-left font-medium text-sm text-[#000000]">
+              ID
+            </th>
+            <th className="py-6 text-left font-medium text-sm text-[#000000]">
+              Last Edited
+            </th>
+            <th className="py-6 text-left font-medium text-sm text-[#000000]">
+              Description
+            </th>
+            <th className="py-6 text-right"></th>
+          </tr>
+          <tr className="border-t border-[#f68b21] h-[1px]">
+            <th colSpan={5} className="p-0 h-[1px]"></th>
+          </tr>
+        </thead>
+        <tbody>
+          {workflows.length > 0 ? (
+            workflows.map((workflow) => (
+              <React.Fragment key={workflow.id}>
+                <tr className="h-[70px] border-b border-[#f8f2e7]">
+                  <td className="pl-9 font-medium text-sm text-[#4f4f4f]">
+                    {workflow.name}
+                  </td>
+                  <td className="font-normal text-sm text-[#4f4f4f]">
+                    #{workflow.id}
+                  </td>
+                  <td className="font-normal text-xs text-[#4f4f4f]">
+                    {workflow.lastEditedBy} | {workflow.lastEditedOn}
+                  </td>
+                  <td className="font-normal text-xs text-[#4f4f4f]">
+                    {workflow.description}
+                  </td>
+                  <td className="pr-6">
+                    <div className="flex items-center justify-end gap-2 cursor-pointer">
                       <button
                         onClick={() => onPinToggle(workflow.id)}
-                        className="px-3 py-2 rounded hover:bg-gray-200 cursor-pointer"
+                        className="p-[1.25px]"
                       >
                         <PinIcon isPinned={workflow.isPinned || false} />
                       </button>
                       <button
-                        onClick={() => handleExecuteClick(workflow.name)}
-                        className="border border-gray-300 rounded-[6px] px-[12px] py-[7px] text-sm bg-white hover:bg-gray-100 cursor-pointer"
+                        onClick={() =>
+                          handleExecuteClick(workflow.id, workflow.name)
+                        }
+                        className="h-8 px-3 py-[7px] text-xs font-medium text-[#221f20] border border-[#e0e0e0] rounded cursor-pointer"
                       >
                         Execute
                       </button>
-                      {/* <button className="border border-gray-300 rounded-[6px] px-[12px] py-[7px] text-sm bg-white hover:bg-gray-100 cursor-pointer">
-                        Edit
-                      </button> */}
                       <button
                         onClick={() => router.push(`/edit`)}
-                        className="border border-gray-300 rounded-[6px] px-[12px] py-[7px] text-sm bg-white hover:bg-gray-100 cursor-pointer"
+                        className="h-8 px-3 py-[7px] text-xs font-medium text-[#221f20] border border-[#e0e0e0] rounded cursor-pointer"
                       >
                         Edit
                       </button>
                       <div className="relative">
                         <button
                           onClick={() => toggleDeleteMenu(workflow.id)}
-                          className="px-3 py-2 rounded hover:bg-gray-200 cursor-pointer"
+                          className="p-[1.25px] cursor-pointer"
                         >
-                          <RxDotsVertical />
+                          <RxDotsVertical className="w-5 h-5 text-[#221f20]" />
                         </button>
                         {showDeleteMenu === workflow.id && (
-                          <div className="absolute right-0 mt-2 w-32 bg-white border border-gray-200 rounded shadow-lg z-10">
+                          <div className="absolute right-0 mt-2 w-32 bg-white border border-[#e0e0e0] rounded shadow-lg z-10">
                             <button
-                              onClick={() => handleDeleteClick(workflow.id, workflow.name)}
-                              className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 cursor-pointer"
+                              onClick={() =>
+                                handleDeleteClick(workflow.id, workflow.name)
+                              }
+                              className="w-full text-left px-4 py-2 text-sm text-red-600 cursor-pointer"
                             >
                               Delete
                             </button>
@@ -127,87 +164,112 @@ export const WorkflowTable = ({
                       </div>
                       <button
                         onClick={() => toggleRowExpansion(workflow.id)}
-                        className="px-3 py-2 rounded hover:bg-gray-200 cursor-pointer"
+                        className="p-[1.25px] cursor-pointer"
                       >
-                        {expandedRow === workflow.id ? <IoArrowUpSharp /> : <IoArrowDownSharp />}
+                        {expandedRow === workflow.id ? (
+                          <IoArrowUpSharp className="w-6 h-6 text-[#221f20]" />
+                        ) : (
+                          <IoArrowDownSharp className="w-6 h-6 text-[#221f20]" />
+                        )}
                       </button>
-                    </td>
-                  </tr>
-                  {expandedRow === workflow.id && (
-                    <>
-                      <tr className="bg-[#FFFAF2]">
-                        <td colSpan={10} className="p-4">
-                          <div className="flex flex-row items-center gap-2 bg-[#FFFAF2]">
-                            <Image
-                              src={Icon}
-                              alt="Background"
-                              quality={100}
-                              priority
-                              className="pr-2"
-                              width={20}
-                              height={20}
-                            />
+                    </div>
+                  </td>
+                </tr>
+                {expandedRow === workflow.id && (
+                  <>
+                    <tr className="bg-[#fffaf1] border-b border-[#f8f2e7]">
+                      <td colSpan={5} className="pl-9 py-5">
+                        <div className="relative">
+                          <div className="absolute w-0.5 h-full top-10 left-[-18px] bg-[#ffe1d2]" />
+                          <div className="absolute w-4 h-4 top-[3px] left-[-25px] bg-[#ffe0d2] rounded-lg">
+                            <div className="relative w-2 h-2 top-1 left-1 bg-[#ff5200] rounded" />
+                          </div>
+
+                          <div className="flex items-center gap-2">
                             <Image
                               src={passTag}
-                              alt="Background"
+                              alt="Pass"
                               quality={100}
                               priority
                               className="pr-2"
                             />
-                            <span className="font-[400] text-[14px] pr-2">{workflow.lastEditedOn}</span>
-                            <span onClick={() => router.push(`/edit`)} className="cursor-pointer">
-                              <TbExternalLink />
+                            <span className="font-normal text-[14px] text-[#4f4f4f]">
+                              {workflow.lastEditedOn}
+                            </span>
+                            <span
+                              onClick={() => router.push(`/edit`)}
+                              className="cursor-pointer"
+                            >
+                              <TbExternalLink className="w-5 h-5 text-[#221f20]" />
                             </span>
                           </div>
-                        </td>
-                      </tr>
-                      <tr className="bg-[#FFFAF2]">
-                        <td colSpan={10} className="p-4">
-                          <div className="flex flex-row items-center gap-2 bg-[#FFFAF2]">
-                            <Image
-                              src={Icon}
-                              alt="Background"
-                              quality={100}
-                              priority
-                              className="pr-2"
-                              width={20}
-                              height={20}
-                            />
+                        </div>
+                      </td>
+                    </tr>
+                    <tr className="bg-[#fffaf1] border-b border-[#f8f2e7]">
+                      <td colSpan={5} className="pl-9 py-5">
+                        <div className="relative">
+                          <div className="absolute w-0.5 h-full bottom-10 left-[-18px] bg-[#ffe1d2]" />
+                          <div className="absolute w-4 h-4 top-[3px] left-[-25px] bg-[#ffe0d2] rounded-lg">
+                            <div className="relative w-2 h-2 top-1 left-1 bg-[#ff5200] rounded" />
+                          </div>
+
+                          <div className="flex items-center gap-2">
                             <Image
                               src={failTag}
-                              alt="Background"
+                              alt="Pass"
                               quality={100}
                               priority
                               className="pr-2"
                             />
-                            <span className="font-[400] text-[14px] pr-2">{workflow.lastEditedOn}</span>
-                            <span onClick={() => router.push(`/edit`)} className="cursor-pointer">
-                              <TbExternalLink />
+                            <span className="font-normal text-[14px] text-[#4f4f4f]">
+                              {workflow.lastEditedOn}
+                            </span>
+                            <span
+                              onClick={() => router.push(`/edit`)}
+                              className="cursor-pointer"
+                            >
+                              <TbExternalLink className="w-5 h-5 text-[#221f20]" />
                             </span>
                           </div>
-                        </td>
-                      </tr>
-                    </>
-                  )}
-                </React.Fragment>
-              ))
-            ) : (
-              <tr>
-                <td colSpan={5} className="p-3 text-center text-gray-500">
-                  No workflows found
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+                        </div>
+                      </td>
+                    </tr>
+                  </>
+                )}
+              </React.Fragment>
+            ))
+          ) : (
+            <tr>
+              <td
+                colSpan={5}
+                className="h-[70px] text-center text-sm text-[#4f4f4f]"
+              >
+                No workflows found
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
 
+      {selectedWorkflow && (
         <ExecuteConfirmationModal
-          isOpen={showModal}
-          onClose={() => setShowModal(false)}
-          onConfirm={handleConfirmExecute}
-          workflowName={selectedWorkflow || ""}
+          isOpen={showModal !== null}
+          onClose={() => {
+            setShowModal(null);
+            setSelectedWorkflow(null);
+          }}
+          onConfirm={
+            showModal === "execute" ? handleConfirmExecute : handleConfirmDelete
+          }
+          workflowName={selectedWorkflow.name}
+          title={
+            showModal === "execute"
+              ? "Are You Sure You Want To Execute The Process"
+              : "Are You Sure You Want To Delete The Process"
+          }
         />
-      </div>
-    </>
+      )}
+    </div>
   );
 };
