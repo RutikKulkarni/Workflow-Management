@@ -184,7 +184,10 @@ export default function HomePage() {
           </div>
 
           <button
-            onClick={() => setIsModalOpen(true)}
+            onClick={() => {
+              // const newWorkflowId = Date.now().toString();
+              router.push(`/edit`);
+            }}
             className="bg-[#221f20] hover:bg-[#3a3738] text-white px-3 py-[7px] rounded text-xs font-medium transition-colors cursor-pointer"
           >
             + Create New Process

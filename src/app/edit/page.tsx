@@ -1,325 +1,230 @@
-'use client';
+"use client";
 
-import { useState, useRef } from 'react';
+import React from "react";
+import { Button } from "../../components/ui/button";
+import { Card } from "../../components/ui/card";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "../../components/ui/popover";
+import { useWorkflowStore, NodeType } from "../../store/workflowStore";
+import { LuRedo, LuUndo } from "react-icons/lu";
+import { GoPlus } from "react-icons/go";
+import { RiSubtractLine } from "react-icons/ri";
+import { FaRegSave } from "react-icons/fa";
+import { useRouter } from "next/navigation";
+
+const nodeOptions = [
+  { type: "api" as NodeType, label: "API Call", color: "#839e4b" },
+  { type: "email" as NodeType, label: "Email", color: "#839e4b" },
+  { type: "textbox" as NodeType, label: "Text Box", color: "#839e4b" },
+];
 
 export default function EditPage() {
-  const [nodes, setNodes] = useState([
-    { id: 'start', type: 'start', content: 'Start' },
-    { id: 'end', type: 'end', content: 'End' }
-  ]);
-  const [showOptions, setShowOptions] = useState(false);
-  const canvasRef = useRef<HTMLDivElement>(null); // Added type for TypeScript
+  const router = useRouter();
+  const { nodes, zoom, setZoom, addNode, removeNode, undo, redo } =
+    useWorkflowStore();
 
-  const addNode = (type: string) => { // Changed 'any' to 'string' for better typing
-    const newNode = {
+  const handleZoomIn = () => setZoom(Math.min(zoom + 0.1, 2));
+  const handleZoomOut = () => setZoom(Math.max(zoom - 0.1, 0.5));
+
+  const handleAddNode = (type: NodeType, label: string, color: string) => {
+    addNode({
       id: Date.now().toString(),
       type,
-      content: type === 'api' ? 'API Call' : type === 'email' ? 'Email' : 'Text Box'
-    };
-    
-    setNodes(prev => {
-      const newNodes = [...prev];
-      newNodes.splice(newNodes.length - 1, 0, newNode);
-      return newNodes;
+      label,
+      color,
     });
-    setShowOptions(false);
-  };
-
-  const deleteNode = (id: string) => { // Changed 'any' to 'string' for better typing
-    setNodes(prev => prev.filter(node => node.id !== id));
-  };
-
-  const handleSave = () => {
-    localStorage.setItem('flowchart', JSON.stringify(nodes));
-    alert('Progress saved!');
-  };
-
-  const handleBack = () => {
-    window.history.back();
   };
 
   return (
-    <div className="h-screen flex flex-col">
-      <div className="p-4 border-b border-gray-200">
-        <button 
-          onClick={handleBack} 
-          className="bg-gray-800 text-white px-4 py-2 rounded mr-4 hover:bg-gray-900"
-        >
-          Back
-        </button>
-        <button 
-          onClick={handleSave} 
-          className="bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-900"
-        >
-          Save
-        </button>
-      </div>
+    <div className="w-full h-full bg-[#f8f2e7] overflow-hidden">
+      <div className="relative h-[827px]">
+        <div className="absolute top-0 left-0 overflow-scroll">
+          <div
+            className="relative w-[2631px] h-[1383px] top-[-280px] left-[-625px]"
+            style={{ transform: `scale(${zoom})`, transformOrigin: "center" }}
+          >
+            <div className="absolute w-[300px] h-[661px] top-[443px] left-[1170px]">
+              {nodes.map((node, index) => (
+                <div key={node.id} className="relative mb-4">
+                  {node.type === "start" || node.type === "end" ? (
+                    <div className="relative w-20 h-20 rounded-[40px] mx-auto">
+                      <div
+                        className={`absolute w-20 h-20 rounded-[40px] border-[6.15px] border-solid`}
+                        style={{ borderColor: node.color }}
+                      >
+                        <div
+                          className="relative w-[58px] h-[58px] top-[5px] left-[5px] rounded-[28.85px]"
+                          style={{ backgroundColor: node.color }}
+                        />
+                        <div className="absolute h-6 top-7 left-[21px] font-medium text-white text-base text-center tracking-[0] leading-6 whitespace-nowrap">
+                          {node.label}
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <Card
+                      className="w-[300px] h-16 border border-solid rounded-lg relative"
+                      style={{ borderColor: node.color }}
+                    >
+                      <div
+                        className="relative w-[302px] h-[66px] -top-px -left-px bg-white rounded-lg border border-solid"
+                        style={{ borderColor: node.color }}
+                      >
+                        <div className="absolute h-[18px] top-[22px] left-6 font-medium text-[#4f4f4f] text-xs tracking-[0] leading-[18px] whitespace-nowrap">
+                          {node.label}
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="absolute right-2 top-[18px] cursor-pointer"
+                          onClick={() => removeNode(node.id)}
+                        >
+                          ×
+                        </Button>
+                      </div>
+                    </Card>
+                  )}
 
-      <div className="flex flex-1">
-        <div className="w-72 border-r border-gray-200 p-4 overflow-y-auto">
-          {nodes.map((node) => (
-            <div key={node.id} className="flex items-center mb-4 gap-4">
-              <div className="p-4 rounded-lg min-w-[100px] text-center bg-gray-800 text-white">
-                {node.content}
-              </div>
-              {node.type !== 'start' && node.type !== 'end' && (
-                <button 
-                  onClick={() => deleteNode(node.id)}
-                  className="bg-gray-800 text-white px-2 py-1 rounded hover:bg-gray-900"
-                >
-                  Delete
-                </button>
-              )}
+                  {index < nodes.length - 1 && (
+                    <div className="w-7 h-[77px] mx-auto relative">
+                      <div className="relative h-[76px]">
+                        <img
+                          className="absolute w-px h-[76px] top-0 left-3.5"
+                          alt="Connection line"
+                          src="/group-1321314615.png"
+                        />
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              className="top-[25px] left-0 absolute w-7 h-7 rounded-[14px] border-[1.17px] border-solid border-[#4f4f4f] p-0 cursor-pointer"
+                            >
+                              <GoPlus className="w-4 h-4" />
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent>
+                            <div className="flex flex-col gap-2">
+                              {nodeOptions.map((option) => (
+                                <Button
+                                  key={option.type}
+                                  variant="ghost"
+                                  onClick={() =>
+                                    handleAddNode(
+                                      option.type,
+                                      option.label,
+                                      option.color
+                                    )
+                                  }
+                                >
+                                  {option.label}
+                                </Button>
+                              ))}
+                            </div>
+                          </PopoverContent>
+                        </Popover>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
-          ))}
+
+            <div className="flex w-[78px] items-start absolute top-[977px] left-[675px] bg-white rounded-[8.57px]">
+              <Button
+                variant="outline"
+                size="icon"
+                className="inline-flex items-center justify-center p-2.5 relative flex-[0_0_auto] rounded-[8.57px_0px_0px_8.57px] border-[1.43px] border-solid border-[#e0e0e0] cursor-pointer"
+                onClick={undo}
+              >
+                <LuUndo className="absolute w-4 h-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
+                className="relative flex-[0_0_auto] mr-[-0.57px] ml-[-1.43px] rounded-[0px_8.57px_8.57px_0px] border-[1.43px] border-solid border-[#e0e0e0] inline-flex items-center justify-center cursor-pointer"
+                onClick={redo}
+              >
+                <LuRedo className="absolute w-4 h-4" />
+              </Button>
+            </div>
+
+            <Card className="inline-flex items-center gap-6 px-6 py-[7px] absolute top-[332px] left-[675px] bg-white rounded-md shadow-shadow-XS">
+              <Button
+                variant="link"
+                className="relative w-fit font-semibold text-[#221f20] text-base tracking-[0] leading-[normal] underline p-0 cursor-pointer"
+                onClick={() => router.push(`/`)}
+              >
+                &lt;- Go Back
+              </Button>
+
+              <div className="inline-flex items-center gap-3 relative flex-[0_0_auto]">
+                <div className="relative w-fit mt-[-1.00px] font-semibold text-[#221f20] text-base tracking-[0] leading-[normal]">
+                  Untitled
+                </div>
+              </div>
+
+              <Button
+                variant="ghost"
+                size="icon"
+                className="p-0 cursor-pointer"
+              >
+                <FaRegSave className="relative w-16 h-16" />
+              </Button>
+            </Card>
+          </div>
         </div>
 
-        <div className="flex-1 p-8" ref={canvasRef}>
-          <div className="flex flex-col items-center">
-            {nodes.map((node, index) => (
-              <div key={node.id} className="flex flex-col items-center">
-                <div className="p-4 m-2 rounded-lg min-w-[100px] text-center bg-gray-800 text-white">
-                  {node.content}
-                </div>
-                {index === nodes.length - 2 && (
-                  <div className="relative">
-                    <button 
-                      onClick={() => setShowOptions(true)}
-                      className="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center text-xl text-white hover:bg-gray-700"
-                    >
-                      +
-                    </button>
-                    {showOptions && (
-                      <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 bg-white border border-gray-200 rounded p-2 flex flex-col gap-2 z-10">
-                        <button 
-                          onClick={() => addNode('api')}
-                          className="px-2 py-1 bg-gray-100 rounded hover:bg-gray-200 text-black"
-                        >
-                          API Call
-                        </button>
-                        <button 
-                          onClick={() => addNode('email')}
-                          className="px-2 py-1 bg-gray-100 rounded hover:bg-gray-200 text-black"
-                        >
-                          Email
-                        </button>
-                        <button 
-                          onClick={() => addNode('text')}
-                          className="px-2 py-1 bg-gray-100 rounded hover:bg-gray-200 text-black"
-                        >
-                          Text Box
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                )}
-                {index < nodes.length - 1 && (
-                  <div className="text-2xl my-2 text-black">↓</div>
-                )}
+        <div className="absolute w-[381px] h-10 top-[697px] left-[950px] bg-white rounded-[8.57px] border border-solid border-[#e0e0e0] flex items-center">
+          <div className="absolute w-[79px] h-10 top-0 left-0 flex">
+            <Button
+              variant="outline"
+              size="icon"
+              className="border-0 absolute top-0 left-0 rounded-[8.57px_0px_0px_8.57px] border-[1.43px] border-solid border-[#e0e0e0] inline-flex items-center justify-center p-2.5 bg-none cursor-pointer"
+              onClick={() => setZoom(1)}
+            >
+              <div className="relative w-5 h-5 bg-white rounded-[10px] border-[1.25px] border-solid border-[#abcd62]">
+                <div className="relative w-3.5 h-3.5 top-0.5 left-0.5 bg-[#abcd62] rounded-[6.88px]" />
               </div>
-            ))}
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              className="border-0 absolute top-0 left-[39px] inline-flex items-center justify-center p-2.5 bg-none cursor-pointer"
+              onClick={handleZoomOut}
+            >
+              <GoPlus className="relative flex-[0_0_auto]" />
+            </Button>
+          </div>
+
+          <Button
+            variant="outline"
+            size="icon"
+            className="border-0 absolute top-0 left-[341px] rounded-[0px_8.57px_8.57px_0px] inline-flex items-center justify-center p-2.5 bg-none cursor-pointer"
+            onClick={handleZoomIn}
+          >
+            <RiSubtractLine className="relative flex-[0_0_auto]" />
+          </Button>
+
+          <div className="absolute w-[230px] h-4 top-3 left-[95px]">
+            <div className="relative w-[234px] h-4 -left-0.5">
+              <input
+                aria-label="Zoom"
+                type="range"
+                min="0.5"
+                max="2"
+                step="0.1"
+                value={zoom}
+                onChange={(e) => setZoom(parseFloat(e.target.value))}
+                className="w-full"
+              />
+            </div>
           </div>
         </div>
       </div>
     </div>
   );
 }
-
-
-// "use client";
-
-// import React, { useState, useEffect } from "react";
-// import { useRouter, useParams } from "next/navigation";
-// import { useSnackbar } from "notistack";
-// import { Workflow } from "@/types/workflow";
-// import { FaArrowLeft, FaSave, FaPlus, FaTrash } from "react-icons/fa";
-
-// type NodeType = "start" | "end" | "api" | "email" | "text" | "connection";
-// type Node = {
-//   id: string;
-//   type: NodeType;
-//   position: { x: number; y: number };
-//   content?: string;
-// };
-
-// export default function WorkflowEditPage() {
-//   const router = useRouter();
-//   const params = useParams();
-//   const { enqueueSnackbar } = useSnackbar();
-//   const workflowId = params.id as string;
-
-//   console.log("Workflow ID from params:", workflowId); // Debug log
-
-//   const [workflow, setWorkflow] = useState<Workflow | null>(null);
-//   const [nodes, setNodes] = useState<Node[]>([
-//     { id: "start", type: "start", position: { x: 100, y: 300 } },
-//     { id: "end", type: "end", position: { x: 600, y: 300 } },
-//     { id: "conn1", type: "connection", position: { x: 0, y: 0 } },
-//   ]);
-//   const [showAddOptions, setShowAddOptions] = useState(false);
-
-//   useEffect(() => {
-//     const fetchWorkflow = async () => {
-//       try {
-//         const response = await fetch(`/api/workflows/${workflowId}`);
-//         if (!response.ok) throw new Error("Workflow not found");
-//         const data = await response.json();
-//         setWorkflow(data);
-//       } catch (error) {
-//         console.error("Fetch error:", error);
-//         enqueueSnackbar("Failed to load workflow", { variant: "error" });
-//       }
-//     };
-//     fetchWorkflow();
-//   }, [workflowId, enqueueSnackbar]);
-
-//   const handleSave = async () => {
-//     try {
-//       const updatedWorkflow = {
-//         ...workflow,
-//         process: JSON.stringify(nodes),
-//         lastEditedOn: new Date().toISOString(),
-//       };
-//       const response = await fetch(`/api/workflows/${workflowId}`, {
-//         method: "PUT",
-//         headers: { "Content-Type": "application/json" },
-//         body: JSON.stringify(updatedWorkflow),
-//       });
-//       if (!response.ok) throw new Error("Save failed");
-//       enqueueSnackbar("Workflow saved successfully", { variant: "success" });
-//     } catch (error) {
-//       enqueueSnackbar("Failed to save workflow", { variant: "error" });
-//     }
-//   };
-
-//   const handleAddNode = (type: "api" | "email" | "text") => {
-//     const newNode: Node = {
-//       id: `${type}-${Date.now()}`,
-//       type,
-//       position: { x: 350, y: 300 },
-//       content: `${type.toUpperCase()} Task`,
-//     };
-//     setNodes([...nodes, newNode]);
-//     setShowAddOptions(false);
-//   };
-
-//   const handleDeleteNode = (nodeId: string) => {
-//     setNodes(nodes.filter((node) => node.id !== nodeId));
-//   };
-
-//   if (!workflow) return <div>Loading...</div>;
-
-//   return (
-//     <div className="min-h-screen bg-gray-100 p-6">
-//       <div className="flex justify-between items-center mb-6">
-//         <div className="flex items-center gap-4">
-//           <button
-//             onClick={() => router.back()}
-//             className="p-2 rounded hover:bg-gray-200"
-//           >
-//             <FaArrowLeft className="w-5 h-5" />
-//           </button>
-//           <h1 className="text-2xl font-semibold">{workflow.name} - Edit</h1>
-//         </div>
-//         <button
-//           onClick={handleSave}
-//           className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-//         >
-//           <FaSave /> Save
-//         </button>
-//       </div>
-//       {/* Rest of your canvas code remains the same */}
-//       <div className="relative w-full h-[600px] bg-white rounded-lg shadow-lg overflow-hidden">
-//         {nodes.map((node) => (
-//           <React.Fragment key={node.id}>
-//             {node.type === "start" && (
-//               <div
-//                 className="absolute w-24 h-12 bg-green-500 text-white rounded-full flex items-center justify-center"
-//                 style={{ left: node.position.x, top: node.position.y }}
-//               >
-//                 Start
-//               </div>
-//             )}
-//             {node.type === "end" && (
-//               <div
-//                 className="absolute w-24 h-12 bg-red-500 text-white rounded-full flex items-center justify-center"
-//                 style={{ left: node.position.x, top: node.position.y }}
-//               >
-//                 End
-//               </div>
-//             )}
-//             {["api", "email", "text"].includes(node.type) && (
-//               <div
-//                 className="absolute w-40 h-20 bg-blue-100 border border-blue-300 rounded flex items-center justify-between p-2"
-//                 style={{ left: node.position.x, top: node.position.y }}
-//               >
-//                 <span>{node.content}</span>
-//                 <button
-//                   onClick={() => handleDeleteNode(node.id)}
-//                   className="p-1 text-red-500 hover:text-red-700"
-//                 >
-//                   <FaTrash />
-//                 </button>
-//               </div>
-//             )}
-//           </React.Fragment>
-//         ))}
-//         <svg className="absolute w-full h-full pointer-events-none">
-//           <line
-//             x1={150}
-//             y1={324}
-//             x2={600}
-//             y2={324}
-//             stroke="gray"
-//             strokeWidth="2"
-//             markerEnd="url(#arrow)"
-//           />
-//           <defs>
-//             <marker
-//               id="arrow"
-//               markerWidth="10"
-//               markerHeight="10"
-//               refX="8"
-//               refY="3"
-//               orient="auto"
-//             >
-//               <path d="M0,0 L0,6 L9,3 z" fill="gray" />
-//             </marker>
-//           </defs>
-//         </svg>
-//         <button
-//           className="absolute w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center"
-//           style={{ left: 350, top: 310 }}
-//           onClick={() => setShowAddOptions(!showAddOptions)}
-//         >
-//           <FaPlus />
-//         </button>
-//         {showAddOptions && (
-//           <div
-//             className="absolute bg-white border rounded shadow-lg p-2 flex flex-col gap-2"
-//             style={{ left: 200, top: 300 }}
-//           >
-//             <button
-//               onClick={() => handleAddNode("api")}
-//               className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-//             >
-//               API Call
-//             </button>
-//             <button
-//               onClick={() => handleAddNode("email")}
-//               className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-//             >
-//               Email
-//             </button>
-//             <button
-//               onClick={() => handleAddNode("text")}
-//               className="px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-600"
-//             >
-//               Text Box
-//             </button>
-//           </div>
-//         )}
-//       </div>
-//     </div>
-//   );
-// }
