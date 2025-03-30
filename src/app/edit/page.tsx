@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "../../components/ui/button";
 import { Card } from "../../components/ui/card";
 import {
@@ -14,6 +14,12 @@ import { GoPlus } from "react-icons/go";
 import { RiSubtractLine } from "react-icons/ri";
 import { FaRegSave } from "react-icons/fa";
 import { useRouter } from "next/navigation";
+import { CreateWorkflowModal } from "@/components/Modals/SaveWorkflow";
+import { getCurrentUser } from "@/lib/auth";
+import { useSnackbar } from "notistack";
+import axios from "axios";
+import { Workflow } from "@/types/workflow";
+import { API_URLS } from "@/lib/api";
 
 const nodeOptions = [
   { type: "api" as NodeType, label: "API Call", color: "#839e4b" },
@@ -22,7 +28,13 @@ const nodeOptions = [
 ];
 
 export default function EditPage() {
+  const [user, setUser] = React.useState<{ email: string } | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [workflows, setWorkflows] = useState<Workflow[]>([]);
+  const [filteredWorkflows, setFilteredWorkflows] = useState<Workflow[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
   const { nodes, zoom, setZoom, addNode, removeNode, undo, redo } =
     useWorkflowStore();
 
@@ -37,6 +49,55 @@ export default function EditPage() {
       color,
     });
   };
+  console.log("nodes", isLoading, workflows, filteredWorkflows, user, zoom);
+  const fetchWorkflows = async () => {
+    setIsLoading(true);
+
+    const fetchingSnackbarKey = enqueueSnackbar("Fetching the Workflow data", {
+      variant: "info",
+      persist: true,
+    });
+
+    try {
+      const response = await axios.get(API_URLS.WORKFLOWS);
+      const workflowsWithPin = response.data.workflows.map(
+        (workflow: Workflow) => ({
+          ...workflow,
+          isPinned: false,
+        })
+      );
+      setWorkflows(workflowsWithPin);
+      setFilteredWorkflows(workflowsWithPin);
+
+      closeSnackbar(fetchingSnackbarKey);
+
+      enqueueSnackbar("Workflow data fetched successfully", {
+        variant: "success",
+      });
+    } catch (error) {
+      console.error("Error fetching workflows:", error);
+      closeSnackbar(fetchingSnackbarKey);
+
+      enqueueSnackbar("Failed to fetch workflows", {
+        variant: "error",
+        autoHideDuration: 6000,
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    const currentUser = getCurrentUser();
+    setUser(currentUser);
+
+    if (!currentUser) {
+      router.push("/auth");
+      return;
+    }
+
+    fetchWorkflows();
+  }, [router]);
 
   return (
     <div className="w-full h-full bg-[#f8f2e7] overflow-hidden">
@@ -171,6 +232,7 @@ export default function EditPage() {
                 variant="ghost"
                 size="icon"
                 className="p-0 cursor-pointer"
+                onClick={() => setIsModalOpen(true)}
               >
                 <FaRegSave className="relative w-16 h-16" />
               </Button>
@@ -223,6 +285,16 @@ export default function EditPage() {
               />
             </div>
           </div>
+
+          <CreateWorkflowModal
+            isOpen={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+            onCreate={(newWorkflow) =>
+              setWorkflows([newWorkflow, ...workflows])
+            }
+            userEmail={user?.email || ""}
+            // userEmail={user.email}
+          />
         </div>
       </div>
     </div>
