@@ -135,7 +135,7 @@ export const WorkflowTable = ({
                         Execute
                       </button>
                       <button
-                        onClick={() => router.push(`/edit/${workflow.id}`)}
+                        onClick={() => router.push(`/edit`)}
                         className="h-8 px-3 py-[7px] text-xs font-medium text-[#221f20] border border-[#e0e0e0] rounded cursor-pointer"
                       >
                         Edit

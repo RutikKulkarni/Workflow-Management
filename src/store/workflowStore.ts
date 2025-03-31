@@ -17,6 +17,7 @@ interface WorkflowState {
   currentHistoryIndex: number;
   addNode: (node: WorkflowNode) => void;
   removeNode: (id: string) => void;
+  setNodes: (nodes: WorkflowNode[]) => void;
   setZoom: (zoom: number) => void;
   undo: () => void;
   redo: () => void;
@@ -28,8 +29,13 @@ export const useWorkflowStore = create<WorkflowState>((set) => ({
     { id: "end", type: "end", label: "End", color: "#ee3425" },
   ],
   zoom: 1,
-  history: [],
-  currentHistoryIndex: -1,
+  history: [
+    [
+      { id: "start", type: "start", label: "Start", color: "#839e4b" },
+      { id: "end", type: "end", label: "End", color: "#ee3425" },
+    ],
+  ],
+  currentHistoryIndex: 0,
 
   addNode: (node) =>
     set((state) => {
@@ -56,6 +62,23 @@ export const useWorkflowStore = create<WorkflowState>((set) => ({
         nodes: newNodes,
         history: newHistory,
         currentHistoryIndex: newHistory.length - 1,
+      };
+    }),
+
+  setNodes: (nodes) =>
+    set((state) => {
+      const maxHistory = 50;
+      const newHistory = [
+        ...state.history.slice(
+          Math.max(0, state.currentHistoryIndex + 1 - maxHistory),
+          state.currentHistoryIndex + 1
+        ),
+        nodes,
+      ];
+      return {
+        nodes,
+        history: newHistory,
+        currentHistoryIndex: Math.min(newHistory.length - 1, maxHistory - 1),
       };
     }),
 

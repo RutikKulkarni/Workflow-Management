@@ -36,7 +36,8 @@ export default function EditPage() {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
-  const { nodes, zoom, setZoom, removeNode, undo, redo } = useWorkflowStore();
+  const { nodes, zoom, setZoom, removeNode, undo, redo, setNodes } =
+    useWorkflowStore();
 
   const handleZoomIn = () => setZoom(Math.min(zoom + 0.1, 2));
   const handleZoomOut = () => setZoom(Math.max(zoom - 0.1, 0.5));
@@ -53,16 +54,13 @@ export default function EditPage() {
         color,
       };
       const updatedNodes = [...nodes];
-      updatedNodes.splice(endIndex, 0, newNode); // Insert before the end node
-
-      useWorkflowStore.setState({ nodes: updatedNodes });
+      updatedNodes.splice(endIndex, 0, newNode);
+      setNodes(updatedNodes);
     }
   };
 
-  console.log("nodes", isLoading, workflows, filteredWorkflows, user, zoom);
   const fetchWorkflows = async () => {
     setIsLoading(true);
-
     const fetchingSnackbarKey = enqueueSnackbar("Fetching the Workflow data", {
       variant: "info",
       persist: true,
@@ -78,16 +76,13 @@ export default function EditPage() {
       );
       setWorkflows(workflowsWithPin);
       setFilteredWorkflows(workflowsWithPin);
-
       closeSnackbar(fetchingSnackbarKey);
-
       enqueueSnackbar("Workflow data fetched successfully", {
         variant: "success",
       });
     } catch (error) {
       console.error("Error fetching workflows:", error);
       closeSnackbar(fetchingSnackbarKey);
-
       enqueueSnackbar("Failed to fetch workflows", {
         variant: "error",
         autoHideDuration: 6000,
@@ -108,6 +103,8 @@ export default function EditPage() {
 
     fetchWorkflows();
   }, [router]);
+
+  console.log("nodes", isLoading, workflows, filteredWorkflows, user, zoom);
 
   return (
     <div className="w-full h-full bg-[#f8f2e7] overflow-hidden">
@@ -162,7 +159,6 @@ export default function EditPage() {
                             priority
                             unoptimized
                             className="pr-2"
-                            onClick={() => removeNode(node.id)}
                           />
                         </Button>
                       </div>
@@ -283,7 +279,7 @@ export default function EditPage() {
               className="border-0 absolute top-0 left-[39px] inline-flex items-center justify-center p-2.5 bg-none cursor-pointer"
               onClick={handleZoomOut}
             >
-              <GoPlus className="relative flex-[0_0_auto]" />
+              <RiSubtractLine className="relative flex-[0_0_auto]" />
             </Button>
           </div>
 
@@ -293,7 +289,7 @@ export default function EditPage() {
             className="border-0 absolute top-0 left-[341px] rounded-[0px_8.57px_8.57px_0px] inline-flex items-center justify-center p-2.5 bg-none cursor-pointer"
             onClick={handleZoomIn}
           >
-            <RiSubtractLine className="relative flex-[0_0_auto]" />
+            <GoPlus className="relative flex-[0_0_auto]" />
           </Button>
 
           <div className="absolute w-[230px] h-4 top-3 left-[95px]">
@@ -318,7 +314,6 @@ export default function EditPage() {
               setWorkflows([newWorkflow, ...workflows])
             }
             userEmail={user?.email || ""}
-            // userEmail={user.email}
           />
         </div>
       </div>
