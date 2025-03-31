@@ -20,6 +20,7 @@ import { useSnackbar } from "notistack";
 import axios from "axios";
 import { Workflow } from "@/types/workflow";
 import { API_URLS } from "@/lib/api";
+import Image from "next/image";
 
 const nodeOptions = [
   { type: "api" as NodeType, label: "API Call", color: "#839e4b" },
@@ -35,20 +36,29 @@ export default function EditPage() {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
-  const { nodes, zoom, setZoom, addNode, removeNode, undo, redo } =
-    useWorkflowStore();
+  const { nodes, zoom, setZoom, removeNode, undo, redo } = useWorkflowStore();
 
   const handleZoomIn = () => setZoom(Math.min(zoom + 0.1, 2));
   const handleZoomOut = () => setZoom(Math.max(zoom - 0.1, 0.5));
 
   const handleAddNode = (type: NodeType, label: string, color: string) => {
-    addNode({
-      id: Date.now().toString(),
-      type,
-      label,
-      color,
-    });
+    const startIndex = nodes.findIndex((node) => node.type === "start");
+    const endIndex = nodes.findIndex((node) => node.type === "end");
+
+    if (startIndex !== -1 && endIndex !== -1 && startIndex < endIndex) {
+      const newNode = {
+        id: Date.now().toString(),
+        type,
+        label,
+        color,
+      };
+      const updatedNodes = [...nodes];
+      updatedNodes.splice(endIndex, 0, newNode); // Insert before the end node
+
+      useWorkflowStore.setState({ nodes: updatedNodes });
+    }
   };
+
   console.log("nodes", isLoading, workflows, filteredWorkflows, user, zoom);
   const fetchWorkflows = async () => {
     setIsLoading(true);
@@ -143,7 +153,17 @@ export default function EditPage() {
                           className="absolute right-2 top-[18px] cursor-pointer"
                           onClick={() => removeNode(node.id)}
                         >
-                          ×
+                          <Image
+                            src="/delete.svg"
+                            alt="delete"
+                            width={20}
+                            height={20}
+                            quality={100}
+                            priority
+                            unoptimized
+                            className="pr-2"
+                            onClick={() => removeNode(node.id)}
+                          />
                         </Button>
                       </div>
                     </Card>
@@ -167,19 +187,24 @@ export default function EditPage() {
                               <GoPlus className="w-4 h-4" />
                             </Button>
                           </PopoverTrigger>
-                          <PopoverContent>
+                          <PopoverContent
+                            align="end"
+                            side="right"
+                            className="bg-white shadow-lg border border-gray-200 p-2 rounded-lg"
+                          >
                             <div className="flex flex-col gap-2">
                               {nodeOptions.map((option) => (
                                 <Button
                                   key={option.type}
                                   variant="ghost"
-                                  onClick={() =>
+                                  onClick={() => {
                                     handleAddNode(
                                       option.type,
                                       option.label,
                                       option.color
-                                    )
-                                  }
+                                    );
+                                    document.dispatchEvent(new Event("click"));
+                                  }}
                                 >
                                   {option.label}
                                 </Button>
