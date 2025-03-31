@@ -7,8 +7,6 @@ import { ExecuteConfirmationModal } from "./Modals/Confirmation";
 import { useSnackbar } from "notistack";
 import { TbExternalLink } from "react-icons/tb";
 import Image from "next/image";
-import passTag from "@/assets/pass-tag.svg";
-import failTag from "@/assets/fail-tag.svg";
 import { useRouter } from "next/navigation";
 
 export const WorkflowTable = ({
@@ -187,10 +185,13 @@ export const WorkflowTable = ({
 
                           <div className="flex items-center gap-2">
                             <Image
-                              src={passTag}
+                              src="/passTag.svg"
                               alt="Pass"
+                              width={50}
+                              height={50}
                               quality={100}
                               priority
+                              unoptimized
                               className="pr-2"
                             />
                             <span className="font-normal text-[14px] text-[#4f4f4f]">
@@ -216,10 +217,13 @@ export const WorkflowTable = ({
 
                           <div className="flex items-center gap-2">
                             <Image
-                              src={failTag}
+                              src="/failTag.svg"
                               alt="Pass"
+                              width={50}
+                              height={50}
                               quality={100}
                               priority
+                              unoptimized
                               className="pr-2"
                             />
                             <span className="font-normal text-[14px] text-[#4f4f4f]">

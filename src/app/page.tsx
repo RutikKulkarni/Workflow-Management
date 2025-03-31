@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
-import { HiMenuAlt2 } from "react-icons/hi";
+// import { HiMenuAlt2 } from "react-icons/hi";
+import Image from "next/image";
 import { RiSearchLine } from "react-icons/ri";
 import { useSnackbar } from "notistack";
 import { WorkflowTable } from "@/components/WorkflowTable";
@@ -153,9 +154,16 @@ export default function HomePage() {
       <div className="max-w-[1440px] mx-auto px-6 py-4">
         <header className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-4">
-            <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+            {/* <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
               <HiMenuAlt2 className="w-6 h-6 text-[#221f20]" />
-            </button>
+            </button> */}
+            <Image
+              src="/menu.svg"
+              alt="Menu Logo"
+              width={35}
+              height={35}
+              className="mr-4"
+            />
             <h1 className="font-semibold text-[22px] text-[#221f20]">
               Workflow Builder
             </h1>
